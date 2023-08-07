@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,12 +26,12 @@ public class UserController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<User> find() {
+  public List<User> findAll() {
     return userRepository.findAll();
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<User> update(@PathVariable Long id) {
+  public ResponseEntity<User> findOne(@PathVariable Long id) {
     Optional<User> foundUser = userRepository.findById(id);
 
     if (foundUser.isPresent()) {
@@ -44,5 +45,20 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   public User create(@RequestBody User user) {
     return userRepository.save(user);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+    Optional<User> foundUser = userRepository.findById(id);
+
+    if (foundUser.isPresent()) {
+      foundUser.get().setName(user.getName());
+
+      User updatedUser = userRepository.save(foundUser.get());
+
+      return ResponseEntity.ok().body(updatedUser);
+    }
+
+    return ResponseEntity.notFound().build();
   }
 }
